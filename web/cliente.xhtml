@@ -1,0 +1,192 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">  
+    <h:head>
+        <title> TP 10 </title>   
+    </h:head>
+    <h:body>
+        <ui:composition template="templates/template.xhtml">
+            <ui:define name="content">
+                <p:growl id="grwMensajeClientes" showDetail="true" showSummary="false" sticky="false"></p:growl>
+                <p:panel id="pnlClientes" header="Tabla de Clientes" rendered="#{loginFormBean.verificarSesion()}">
+                    <h:form id="frmClientes" enctype="multipart/form-data">
+                        <p:dataTable id="tblClientes" var="c" value="#{clienteFormBean.obtenerCliente()}"
+                                     paginator="true" rows="5"
+                                     emptyMessage="No hay clientes">
+                            <p:column headerText="ID" style="width: 5px">
+                                <p:outputLabel value="#{c.clienteId}"/>
+                            </p:column>
+                            <p:column headerText="DNI" style="width: 5px">
+                                <p:outputLabel value="#{c.dni}"/>
+                            </p:column>
+                            <p:column headerText="Nombre" style="width: 10px">
+                                <p:outputLabel value="#{c.nombre}"/>
+                            </p:column>
+                            <p:column headerText="Apellido" style="width: 20px">
+                                <p:outputLabel value="#{c.apellido}"/>
+                            </p:column>
+                            <p:column headerText="Fecha de Nacimiento" style="width: 20px">
+                                <p:outputLabel value="#{c.fechaNacimiento}">
+                                    <f:convertDateTime pattern="dd-MM-yyyy"/>
+                                </p:outputLabel>
+                            </p:column>
+                            <p:column headerText="Email" style="width: 5px">
+                                <p:outputLabel value="#{c.correoElectronico}"/>
+                            </p:column>
+                            <p:column headerText="Foto" style="width: 15px">
+                                
+                                <p:graphicImage width="70" value="#{c.muestraFoto}" height="70"
+                                                stream="false" alt="No Disponible"/>
+                            </p:column>
+                            <p:column headerText="Opciones" style="width: 20px">
+                                <p:commandButton icon="ui-icon-pencil"
+                                                 oncomplete="PF('modificarCliente').show()"
+                                                 update=":frmModificarClientes"
+                                                 actionListener="#{clienteFormBean.establecerCliente(c)}"/>
+                                <p:commandButton icon="ui-icon-trash"
+                                                 oncomplete="PF('eliminarCliente').show()"
+                                                 update=":frmEliminarCliente"
+                                                 actionListener="#{clienteFormBean.establecerCliente(c)}"/>
+                            </p:column>
+                        </p:dataTable>
+                        <p:commandButton id="btnCrearCliente" value="Nuevo Cliente"
+                                         actionListener="#{clienteFormBean.inicializarCliente()}"
+                                         update=":frmAltaClientes"/>
+                    </h:form>
+                </p:panel>
+                <p:dialog id="dlgAltaClientes" widgetVar="altaCliente"
+                          header="Alta de Clientes" resizable="false"
+                          showEffect="explode" hideEffect="explode" modal="true">
+                    <h:form id="frmAltaClientes" enctype="multipart/form-data">
+                        <h:panelGrid id="pnlGridAltaClientes" columns="2">
+                            <p:outputLabel for="id" value="ID: "/>
+                            <p:inputText id="id" required="true"
+                                         value="#{clienteFormBean.clienteBean.cliente.clienteId}">
+                            <f:validateLongRange minimum="0" maximum="1000"/>
+                            </p:inputText>
+                            <p:outputLabel for="dni" value="DNI: "/>
+                            <p:inputNumber id="dni" required="true"
+                                           decimalPlaces="0" maxValue="99999999" minValue="0"
+                                           value="#{clienteFormBean.clienteBean.cliente.dni}"/>
+                            <p:outputLabel for="nombre" value="Nombre: "/>
+                            <p:inputText id="nombre" required="true"
+                                         value="#{clienteFormBean.clienteBean.cliente.nombre}"/>
+                            <p:outputLabel for="apellido" value="Apellido: "/>
+                            <p:inputText id="apellido" required="true"
+                                         value="#{clienteFormBean.clienteBean.cliente.apellido}"/>
+                            <p:outputLabel for="fechaNac" value="Fecha de Nacimiento: "/>
+                            <p:calendar id="fechaNac" pattern="dd-MM-yyyy" mask="true" required="true"
+                                        size="10" maxlength="10" locale="es"
+                                        maxdate="#{clienteFormBean.fechaActual}"
+                                        value="#{clienteFormBean.clienteBean.cliente.fechaNacimiento}"/>
+                            <p:outputLabel for="email" value="Correo Electronico: "/>
+                            <p:inputText id="email" value="#{clienteFormBean.clienteBean.cliente.correoElectronico}">
+                                <f:validator validatorId="emailValidator"/>
+                            </p:inputText>
+                            <p:outputLabel for="foto" value="Foto: "/>
+                            <p:fileUpload id="foto" value="#{clienteFormBean.file}" mode="simple"/>
+                            
+                            <p:commandButton id="btnGrabarCliente" value="GRABAR" ajax="false"
+                                             update=":frmClientes :grwMensajeClientes"
+                                             actionListener="#{clienteFormBean.agregarCliente()}">
+                                
+                            </p:commandButton>
+                            <p:commandButton id="btnCerrarNuevoCliente"
+                                             value="SALIR"
+                                             oncomplete="PF('altaCliente').hide()"/>
+                        </h:panelGrid> 
+                    </h:form>
+                </p:dialog>
+                <p:dialog id="frmModificarCliente" widgetVar="modificarCliente"
+                          header="Modificacion de Clientes" modal="true"
+                          resizable="false" draggable="false"
+                          showEffect="fade" hideEffect="fade">
+                    <h:form id="frmModificarClientes" enctype="multipart/form-data">
+                        <h:panelGrid id="pnlGridModificarClientes" columns="2">
+                            <p:outputLabel for="id" value="ID: "/>
+                            <p:inputText id="id" required="true" disabled="true"
+                                         value="#{clienteFormBean.clienteBean.cliente.clienteId}"/>
+                            <p:outputLabel for="dni" value="DNI: "/>
+                            <p:inputText id="dni" required="true" disabled="true"
+                                         value="#{clienteFormBean.clienteBean.cliente.dni}"/>
+                            <p:outputLabel for="nombre" value="Nombre: "/>
+                            <p:inputText id="nombre" required="true" disabled="true"
+                                         value="#{clienteFormBean.clienteBean.cliente.nombre}"/>
+                             <p:outputLabel for="apellido" value="Apellido: "/>
+                            <p:inputText id="apellido" required="true" disabled="true"
+                                         value="#{clienteFormBean.clienteBean.cliente.apellido}"/>
+                             <p:outputLabel for="fecNac" value="Fecha de Nacimiento: "/>
+                             <p:calendar id="fecNac" pattern="dd-MM-yyyy" mask="true" required="true"
+                                         size="10" maxlength="10" locale="es"
+                                         maxdate="#{clienteFormBean.fechaActual}"
+                                         value="#{clienteFormBean.clienteBean.cliente.fechaNacimiento}"/>
+                             <p:outputLabel for="email" value="Correo Electrónico: "/>
+                             <p:inputText id="email" value="#{clienteFormBean.clienteBean.cliente.correoElectronico}"/>
+                             <p:outputLabel for="foto" value="Foto: "/>
+                             <p:fileUpload id="foto" value="#{clienteFormBean.file}"
+                                           mode="simple"/>
+                             <p:panel rendered="#{clienteFormBean.clienteBean.cliente.conFoto}">
+                                 <p:graphicImage width="50" value="#{clienteFormBean.clienteBean.cliente.muestraFoto}"
+                                                 height="80" />
+                                 
+                             </p:panel>
+                             <p:commandButton id="btnModificarCliente" value="MODIFICAR" ajax="false"
+                                              actionListener="#{clienteFormBean.modificarCliente()}"
+                                              oncomplete="PF('modificarCliente').hide()"
+                                              update=":frmClientes :grwMensajeClientes">
+                             </p:commandButton>
+                             <p:commandButton id="btnCerrarModificarCliente"
+                                              value="SALIR"
+                                              oncomplete="PF('modificarCliente').hide()"/>
+                        </h:panelGrid>
+                    </h:form>
+                </p:dialog>
+                <p:dialog id="dlgEliminarCliente" widgetVar="eliminarCliente"
+                          header="Eliminación de Cliente" resizable="false" draggable="false"
+                          showEffect="explode" hideEffect="explode" modal="true">
+                    <h:form id="frmEliminarCliente">
+                        <h:panelGrid id="pnlEliminarCliente" columns="2">
+                            <p:outputLabel for="id" value="ID: "/>
+                            <p:outputLabel id="id" value="#{clienteFormBean.clienteBean.cliente.clienteId}"/>
+                            <p:outputLabel for="dni" value="DNI: "/>
+                            <p:outputLabel id="dni" value="#{clienteFormBean.clienteBean.cliente.dni}"/>
+                            <p:outputLabel for="nombre" value="Nombre: "/>
+                            <p:outputLabel id="nombre" value="#{clienteFormBean.clienteBean.cliente.nombre}"/>
+                            <p:outputLabel for="apellido" value="Apellido: "/>
+                            <p:outputLabel id="apellido" value="#{clienteFormBean.clienteBean.cliente.apellido}"/>
+                            <p:outputLabel for="fecNac" value="Fecha de Nacimiento: "/>
+                            <p:outputLabel id="fecNac" value="#{clienteFormBean.clienteBean.cliente.fechaNacimiento}"/>
+                            <p:outputLabel for="email" value="Correo Electrónico: "/>
+                            <p:outputLabel id="email" value="#{clienteFormBean.clienteBean.cliente.correoElectronico}"/>
+                            
+                            <p:commandButton id="btnEliminarCliente" value="Eliminar"
+                                             actionListener="#{clienteFormBean.eliminarCliente()}"
+                                             update=":frmClientes">
+                                <p:confirm header="Pedido de Confirmación"
+                                           message="¿Confirma Eliminar Cliente?" icon="ui-icon-alert"/>
+                            </p:commandButton>
+                            <p:commandButton id="btnCerrarEliminarCliente"
+                                             value="Salir"
+                                             oncomplete="PF('eliminarCliente').hide()"/>
+                        </h:panelGrid>
+                        
+                    </h:form>
+                </p:dialog>
+                <p:confirmDialog id="dlgConfirmacion" global="true"
+                    showEffect="fade" hideEffect="fade">
+                    <h:form id="frmConfirmacion">
+                        <p:commandButton value="SI" type="button"
+                                         styleClass="ui-confirmdialog-yes" icon="ui-icon-check"/>
+                        <p:commandButton value="NO" type="button"
+                                         styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+                                         style="float: right;"/>
+                    </h:form>               
+                </p:confirmDialog>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>

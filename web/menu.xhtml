@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:head>
+        <title>Facelet Title</title>
+    </h:head>
+    <h:body>
+        <ui:composition template="./templates/template.xhtml">
+            <ui:define name="top">
+                <div id="top">
+                    <h:form rendered="#{loginFormBean.verificarSesion()}" >
+                        <p:growl id="mensaje" showDetail="true"/>
+                        <p:menubar>
+                            <p:submenu label="Puntos Parcial">
+                                <p:menuitem value="Tabla Clientes" url="./faces/cliente.xhtml"/>
+                                <p:menuitem value="Punto 02"/>
+                                <p:menuitem value="Punto 03"/>
+                            </p:submenu>
+                            <p:menuitem value="Datos Personales"/>
+                            <f:facet name="options">
+                                <p:outputLabel value="Bienvenido: #{loginFormBean.nombreUsuarioValidado}"/>
+                                <p:commandButton value="Cerrar Sesion" action="#{loginFormBean.cerrarSesion()}"/>
+                            </f:facet>
+                        </p:menubar>
+                    </h:form>
+                            
+                    
+                </div>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
+
